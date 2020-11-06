@@ -4,7 +4,7 @@
 #
 Name     : graphite
 Version  : 1.3.13
-Release  : 7
+Release  : 8
 URL      : https://github.com/silnrsi/graphite/releases/download/1.3.13/graphite2-1.3.13.tgz
 Source0  : https://github.com/silnrsi/graphite/releases/download/1.3.13/graphite2-1.3.13.tgz
 Summary  : "Interface to SIL's Graphite2 rendering engine"
@@ -102,29 +102,30 @@ license components for the graphite package.
 
 %prep
 %setup -q -n graphite2-1.3.13
+cd %{_builddir}/graphite2-1.3.13
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1569521917
+export SOURCE_DATE_EPOCH=1604706327
 mkdir -p clr-build
 pushd clr-build
 export GCC_IGNORE_WERROR=1
 export CFLAGS="$CFLAGS -fno-lto "
-export FCFLAGS="$CFLAGS -fno-lto "
-export FFLAGS="$CFLAGS -fno-lto "
+export FCFLAGS="$FFLAGS -fno-lto "
+export FFLAGS="$FFLAGS -fno-lto "
 export CXXFLAGS="$CXXFLAGS -fno-lto "
 %cmake ..
-make  %{?_smp_mflags}  VERBOSE=1
+make  %{?_smp_mflags}
 popd
 mkdir -p clr-build32
 pushd clr-build32
 export GCC_IGNORE_WERROR=1
 export CFLAGS="$CFLAGS -fno-lto "
-export FCFLAGS="$CFLAGS -fno-lto "
-export FFLAGS="$CFLAGS -fno-lto "
+export FCFLAGS="$FFLAGS -fno-lto "
+export FFLAGS="$FFLAGS -fno-lto "
 export CXXFLAGS="$CXXFLAGS -fno-lto "
 export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
 export ASFLAGS="${ASFLAGS}${ASFLAGS:+ }--32"
@@ -132,7 +133,7 @@ export CFLAGS="${CFLAGS}${CFLAGS:+ }-m32 -mstackrealign"
 export CXXFLAGS="${CXXFLAGS}${CXXFLAGS:+ }-m32 -mstackrealign"
 export LDFLAGS="${LDFLAGS}${LDFLAGS:+ }-m32 -mstackrealign"
 %cmake -DLIB_INSTALL_DIR:PATH=/usr/lib32 -DCMAKE_INSTALL_LIBDIR=/usr/lib32 -DLIB_SUFFIX=32 ..
-make  %{?_smp_mflags}  VERBOSE=1
+make  %{?_smp_mflags}
 unset PKG_CONFIG_PATH
 popd
 
@@ -146,12 +147,12 @@ cd ../clr-build32;
 make test || : || :
 
 %install
-export SOURCE_DATE_EPOCH=1569521917
+export SOURCE_DATE_EPOCH=1604706327
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/graphite
-cp COPYING %{buildroot}/usr/share/package-licenses/graphite/COPYING
-cp LICENSE %{buildroot}/usr/share/package-licenses/graphite/LICENSE
-cp debian-src/copyright %{buildroot}/usr/share/package-licenses/graphite/debian-src_copyright
+cp %{_builddir}/graphite2-1.3.13/COPYING %{buildroot}/usr/share/package-licenses/graphite/07903fc8c18ad3ffa9f30a28c3a3947ef7888296
+cp %{_builddir}/graphite2-1.3.13/LICENSE %{buildroot}/usr/share/package-licenses/graphite/9a1929f4700d2407c70b507b3b2aaf6226a9543c
+cp %{_builddir}/graphite2-1.3.13/debian-src/copyright %{buildroot}/usr/share/package-licenses/graphite/c951267758aad7dbdfa3251e5a2680f4889bac4c
 pushd clr-build32
 %make_install32
 if [ -d  %{buildroot}/usr/lib32/pkgconfig ]
@@ -204,6 +205,6 @@ popd
 
 %files license
 %defattr(0644,root,root,0755)
-/usr/share/package-licenses/graphite/COPYING
-/usr/share/package-licenses/graphite/LICENSE
-/usr/share/package-licenses/graphite/debian-src_copyright
+/usr/share/package-licenses/graphite/07903fc8c18ad3ffa9f30a28c3a3947ef7888296
+/usr/share/package-licenses/graphite/9a1929f4700d2407c70b507b3b2aaf6226a9543c
+/usr/share/package-licenses/graphite/c951267758aad7dbdfa3251e5a2680f4889bac4c
