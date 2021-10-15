@@ -4,7 +4,7 @@
 #
 Name     : graphite
 Version  : 1.3.13
-Release  : 11
+Release  : 12
 URL      : https://github.com/silnrsi/graphite/releases/download/1.3.13/graphite2-1.3.13.tgz
 Source0  : https://github.com/silnrsi/graphite/releases/download/1.3.13/graphite2-1.3.13.tgz
 Summary  : "Interface to SIL's Graphite2 rendering engine"
@@ -12,6 +12,7 @@ Group    : Development/Tools
 License  : Artistic-1.0-Perl GPL-2.0 ICU LGPL-2.1 OFL-1.1
 Requires: graphite-bin = %{version}-%{release}
 Requires: graphite-data = %{version}-%{release}
+Requires: graphite-filemap = %{version}-%{release}
 Requires: graphite-lib = %{version}-%{release}
 Requires: graphite-license = %{version}-%{release}
 BuildRequires : buildreq-cmake
@@ -34,6 +35,7 @@ Summary: bin components for the graphite package.
 Group: Binaries
 Requires: graphite-data = %{version}-%{release}
 Requires: graphite-license = %{version}-%{release}
+Requires: graphite-filemap = %{version}-%{release}
 
 %description bin
 bin components for the graphite package.
@@ -72,11 +74,20 @@ Requires: graphite-dev = %{version}-%{release}
 dev32 components for the graphite package.
 
 
+%package filemap
+Summary: filemap components for the graphite package.
+Group: Default
+
+%description filemap
+filemap components for the graphite package.
+
+
 %package lib
 Summary: lib components for the graphite package.
 Group: Libraries
 Requires: graphite-data = %{version}-%{release}
 Requires: graphite-license = %{version}-%{release}
+Requires: graphite-filemap = %{version}-%{release}
 
 %description lib
 lib components for the graphite package.
@@ -109,7 +120,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1604706327
+export SOURCE_DATE_EPOCH=1634322998
 mkdir -p clr-build
 pushd clr-build
 export GCC_IGNORE_WERROR=1
@@ -120,6 +131,20 @@ export CXXFLAGS="$CXXFLAGS -fno-lto "
 %cmake ..
 make  %{?_smp_mflags}
 popd
+mkdir -p clr-build-avx2
+pushd clr-build-avx2
+export GCC_IGNORE_WERROR=1
+export CFLAGS="$CFLAGS -O3 -fno-lto -march=x86-64-v3 -mtune=skylake "
+export FCFLAGS="$FFLAGS -O3 -fno-lto -march=x86-64-v3 -mtune=skylake "
+export FFLAGS="$FFLAGS -O3 -fno-lto -march=x86-64-v3 -mtune=skylake "
+export CXXFLAGS="$CXXFLAGS -O3 -fno-lto -march=x86-64-v3 -mtune=skylake "
+export CFLAGS="$CFLAGS -march=x86-64-v3 -m64"
+export CXXFLAGS="$CXXFLAGS -march=x86-64-v3 -m64"
+export FFLAGS="$FFLAGS -march=x86-64-v3 -m64"
+export FCFLAGS="$FCFLAGS -march=x86-64-v3 -m64"
+%cmake ..
+make  %{?_smp_mflags}
+popd
 mkdir -p clr-build32
 pushd clr-build32
 export GCC_IGNORE_WERROR=1
@@ -127,7 +152,7 @@ export CFLAGS="$CFLAGS -fno-lto "
 export FCFLAGS="$FFLAGS -fno-lto "
 export FFLAGS="$FFLAGS -fno-lto "
 export CXXFLAGS="$CXXFLAGS -fno-lto "
-export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+export PKG_CONFIG_PATH="/usr/lib32/pkgconfig:/usr/share/pkgconfig"
 export ASFLAGS="${ASFLAGS}${ASFLAGS:+ }--32"
 export CFLAGS="${CFLAGS}${CFLAGS:+ }-m32 -mstackrealign"
 export CXXFLAGS="${CXXFLAGS}${CXXFLAGS:+ }-m32 -mstackrealign"
@@ -145,9 +170,11 @@ export no_proxy=localhost,127.0.0.1,0.0.0.0
 cd clr-build; make test || :
 cd ../clr-build32;
 make test || : || :
+cd ../clr-build-avx2;
+make test || : || :
 
 %install
-export SOURCE_DATE_EPOCH=1604706327
+export SOURCE_DATE_EPOCH=1634322998
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/graphite
 cp %{_builddir}/graphite2-1.3.13/COPYING %{buildroot}/usr/share/package-licenses/graphite/07903fc8c18ad3ffa9f30a28c3a3947ef7888296
@@ -161,10 +188,20 @@ pushd %{buildroot}/usr/lib32/pkgconfig
 for i in *.pc ; do ln -s $i 32$i ; done
 popd
 fi
+if [ -d %{buildroot}/usr/share/pkgconfig ]
+then
+pushd %{buildroot}/usr/share/pkgconfig
+for i in *.pc ; do ln -s $i 32$i ; done
+popd
+fi
+popd
+pushd clr-build-avx2
+%make_install_v3  || :
 popd
 pushd clr-build
 %make_install
 popd
+/usr/bin/elf-move.py avx2 %{buildroot}-v3 %{buildroot}/usr/share/clear/optimized-elf/ %{buildroot}/usr/share/clear/filemap/filemap-%{name}
 
 %files
 %defattr(-,root,root,-)
@@ -172,6 +209,7 @@ popd
 %files bin
 %defattr(-,root,root,-)
 /usr/bin/gr2fonttest
+/usr/share/clear/optimized-elf/bin*
 
 %files data
 %defattr(-,root,root,-)
@@ -193,10 +231,15 @@ popd
 /usr/lib32/pkgconfig/32graphite2.pc
 /usr/lib32/pkgconfig/graphite2.pc
 
+%files filemap
+%defattr(-,root,root,-)
+/usr/share/clear/filemap/filemap-graphite
+
 %files lib
 %defattr(-,root,root,-)
 /usr/lib64/libgraphite2.so.3
 /usr/lib64/libgraphite2.so.3.2.1
+/usr/share/clear/optimized-elf/lib*
 
 %files lib32
 %defattr(-,root,root,-)
