@@ -4,7 +4,7 @@
 #
 Name     : graphite
 Version  : 1.3.13
-Release  : 12
+Release  : 13
 URL      : https://github.com/silnrsi/graphite/releases/download/1.3.13/graphite2-1.3.13.tgz
 Source0  : https://github.com/silnrsi/graphite/releases/download/1.3.13/graphite2-1.3.13.tgz
 Summary  : "Interface to SIL's Graphite2 rendering engine"
