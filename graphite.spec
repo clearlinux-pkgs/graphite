@@ -5,7 +5,7 @@
 #
 Name     : graphite
 Version  : 1.3.14
-Release  : 25
+Release  : 26
 URL      : https://github.com/silnrsi/graphite/releases/download/1.3.14/graphite2-1.3.14.tgz
 Source0  : https://github.com/silnrsi/graphite/releases/download/1.3.14/graphite2-1.3.14.tgz
 Summary  : "Interface to SIL's Graphite2 rendering engine"
@@ -112,7 +112,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1682975900
+export SOURCE_DATE_EPOCH=1685543934
 mkdir -p clr-build
 pushd clr-build
 export GCC_IGNORE_WERROR=1
@@ -166,7 +166,7 @@ cd ../clr-build-avx2;
 make test || : || :
 
 %install
-export SOURCE_DATE_EPOCH=1682975900
+export SOURCE_DATE_EPOCH=1685543934
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/graphite
 cp %{_builddir}/graphite2-%{version}/COPYING %{buildroot}/usr/share/package-licenses/graphite/07903fc8c18ad3ffa9f30a28c3a3947ef7888296 || :
@@ -210,7 +210,6 @@ popd
 
 %files dev
 %defattr(-,root,root,-)
-/V3/usr/lib64/libgraphite2.so
 /usr/include/graphite2/Font.h
 /usr/include/graphite2/Log.h
 /usr/include/graphite2/Segment.h
@@ -226,7 +225,6 @@ popd
 
 %files lib
 %defattr(-,root,root,-)
-/V3/usr/lib64/libgraphite2.so.3
 /V3/usr/lib64/libgraphite2.so.3.2.1
 /usr/lib64/libgraphite2.so.3
 /usr/lib64/libgraphite2.so.3.2.1
